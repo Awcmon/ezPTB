@@ -8,11 +8,13 @@ enum TokenType
 	TOKEN_UNKNOWN,
 	TOKEN_SPACE,
 	TOKEN_NUMBER,
-	TOKEN_OPERATOR,
+	TOKEN_LETTER,
+	TOKEN_VARIABLE,
 	TOKEN_FUNCTION,
+	TOKEN_SYMBOL,
+	TOKEN_OPERATOR,
 	TOKEN_LEFT_PAREN,
-	TOKEN_RIGHT_PAREN,
-	TOKEN_VARIABLE
+	TOKEN_RIGHT_PAREN
 };
 
 class AToken
@@ -26,6 +28,7 @@ public:
 	void setType(int _type);
 	std::string getStr();
 	int getType();
+	void reset();
 
 private:
 	std::string str;

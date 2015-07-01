@@ -3,6 +3,7 @@
 
 AToken::AToken()
 {
+	type = TOKEN_NULL;
 }
 
 AToken::AToken(std::string _str, int _type)
@@ -33,4 +34,10 @@ std::string AToken::getStr()
 int AToken::getType()
 {
 	return type;
+}
+
+void AToken::reset()
+{
+	type = TOKEN_NULL;
+	str = "";
 }

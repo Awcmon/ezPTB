@@ -4,6 +4,8 @@
 #include <vector>
 #include <map>
 #include <iostream>
+#include <algorithm>
+#include <iterator>
 
 class ALexer
 {
@@ -16,7 +18,10 @@ public:
 	void add(std::string val, int type);
 	void addSingle(std::string val, int type);
 
+	std::map< int, std::vector<std::string> > stringmap;
+
 private:
 	std::map<std::string, int> tokenmap;
+
 };
 

@@ -115,7 +115,7 @@ std::vector<AToken> Inline2RPN(std::vector<AToken> tokens)
 
 	return output;
 }
-
+/*
 float RPNEvaulate(std::vector<AToken> input)
 {
 	std::stack<AToken> evstack;		//evaluation stack
@@ -141,6 +141,44 @@ float RPNEvaulate(std::vector<AToken> input)
 			break;
 		}
 	}
+	return 0;
+}
+*/
+AToken rpop(std::stack<AToken> stack)
+{
+	AToken top = stack.top();
+	stack.pop();
+	return top;
+}
+
+void printTokenVector(std::vector<AToken> tokVec)
+{
+	std::string tokenTypeStrings[10] =
+	{
+		"TOKEN_NULL",
+		"TOKEN_UNKNOWN",
+		"TOKEN_SPACE",
+		"TOKEN_NUMBER",
+		"TOKEN_LETTER",
+		"TOKEN_OPERATOR",
+		"TOKEN_FUNCTION",
+		"TOKEN_LEFT_PAREN",
+		"TOKEN_RIGHT_PAREN",
+		"TOKEN_VARIABLE"
+	};
+
+	for (int i = 0; i < (int)tokVec.size(); i++)
+	{
+		std::cout << tokVec[i].getStr() << "    " << tokenTypeStrings[tokVec[i].getType()] << "\n";
+	}
+}
+void printStrVector(std::vector<std::string> strVec)
+{
+	for (int i = 0; i < (int)strVec.size(); i++)
+	{
+		std::cout << strVec[i] << " ";
+	}
+	std::cout << "\n";
 }
 
 int main()
@@ -148,10 +186,12 @@ int main()
 	//Set up lexer
 	ALexer lexer;
 	lexer.add("1234567890", TOKEN_NUMBER);
+	lexer.add("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", TOKEN_LETTER);
 	lexer.add("+-*/^", TOKEN_OPERATOR);
 	lexer.addSingle("(", TOKEN_LEFT_PAREN);
 	lexer.addSingle(")", TOKEN_RIGHT_PAREN);
 	lexer.addSingle(" ", TOKEN_SPACE);
+	lexer.addSingle("sin", TOKEN_FUNCTION);
 
 	//Set up operators so Shunting Yard can deal with them
 	operators["^"] = { 4, 1, 2 };
@@ -160,15 +200,19 @@ int main()
 	operators["+"] = { 2, 0, 2 };
 	operators["-"] = { 2, 0, 2 };
 
+	//printStrVector(lexer.stringmap[TOKEN_LETTER]);
+
 	//Handle input
 	std::string input;
 	std::cout << "Input: ";
 	std::cin >> input;
 
-	//Tokenize input
-	std::vector<AToken> rpn = Inline2RPN(lexer.tokenize(input));
+	printTokenVector(lexer.tokenize(input));
 
-	std::cout << RPNEvaulate(rpn);
+	//Tokenize input
+	//std::vector<AToken> rpn = Inline2RPN(lexer.tokenize(input));
+
+	//std::cout << RPNEvaulate(rpn);
 
 	return 0;
 }

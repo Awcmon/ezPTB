@@ -8,6 +8,7 @@ ALexer::~ALexer()
 {
 }
 
+/*deprecated 06.30.15
 std::vector<AToken> ALexer::tokenize(std::string input)
 {
 	std::vector<AToken> tokens;
@@ -57,6 +58,58 @@ std::vector<AToken> ALexer::tokenize(std::string input)
 	}
 	return tokens;
 }
+*/
+
+std::vector<AToken> ALexer::tokenize(std::string input)
+{
+	std::vector<AToken> tokens;
+
+	AToken curToken;
+
+	while (input.size() > 0)
+	{
+		std::string curChar = input.substr(0, 1);
+		int curType = getTypeFromString(curChar);
+
+		if (curToken.getType() == TOKEN_NULL)
+		{
+			curToken.setType(curType);
+			curToken.setStr(curChar);
+			input.erase(0, 1);
+		}
+		else if (curType == TOKEN_NUMBER && curToken.getType() == TOKEN_NUMBER)
+		{
+			curToken.setStr(curToken.getStr() + curChar);
+			input.erase(0, 1);
+		}
+		if (curType == TOKEN_LETTER)
+		{
+			if (curToken.getType() == TOKEN_LETTER)
+			{
+				for (int i = 0; i < (int)stringmap[TOKEN_FUNCTION].size(); i++)
+				{
+					if ( std::find(std::begin(input), std::end(input), stringmap[TOKEN_FUNCTION][i]) == std::begin(input) )
+					{
+
+					}
+				}
+				
+			}
+		}
+		else //if (curType != curToken.getType())
+		{
+			tokens.push_back(curToken);
+			curToken.reset();
+		}
+	}
+	if (curToken.getType() != TOKEN_NULL)
+	{
+		tokens.push_back(curToken);
+		curToken.reset();
+	}
+
+	return tokens;
+}
 
 int ALexer::getTypeFromString(std::string val)
 {
@@ -64,12 +117,17 @@ int ALexer::getTypeFromString(std::string val)
 	{
 		return tokenmap[val];
 	}
+	else
+	{
+		return TOKEN_UNKNOWN;
+	}
 	return NULL;
 }
 
 void ALexer::addSingle(std::string val, int type)
 {
 	tokenmap.insert(std::pair<std::string , int>(val, type));
+	stringmap[type].push_back(val);
 }
 
 void ALexer::add(std::string val, int type)
