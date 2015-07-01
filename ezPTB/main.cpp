@@ -153,18 +153,19 @@ AToken rpop(std::stack<AToken> stack)
 
 void printTokenVector(std::vector<AToken> tokVec)
 {
-	std::string tokenTypeStrings[10] =
+	std::string tokenTypeStrings[11] =
 	{
 		"TOKEN_NULL",
 		"TOKEN_UNKNOWN",
 		"TOKEN_SPACE",
 		"TOKEN_NUMBER",
 		"TOKEN_LETTER",
-		"TOKEN_OPERATOR",
+		"TOKEN_VARIABLE",
 		"TOKEN_FUNCTION",
+		"TOKEN_SYMBOL",
+		"TOKEN_OPERATOR",
 		"TOKEN_LEFT_PAREN",
-		"TOKEN_RIGHT_PAREN",
-		"TOKEN_VARIABLE"
+		"TOKEN_RIGHT_PAREN"
 	};
 
 	for (int i = 0; i < (int)tokVec.size(); i++)
@@ -192,6 +193,9 @@ int main()
 	lexer.addSingle(")", TOKEN_RIGHT_PAREN);
 	lexer.addSingle(" ", TOKEN_SPACE);
 	lexer.addSingle("sin", TOKEN_FUNCTION);
+	lexer.addSingle("cos", TOKEN_FUNCTION);
+	lexer.addSingle("tan", TOKEN_FUNCTION);
+	lexer.addSingle("testfunc2", TOKEN_FUNCTION);
 
 	//Set up operators so Shunting Yard can deal with them
 	operators["^"] = { 4, 1, 2 };
