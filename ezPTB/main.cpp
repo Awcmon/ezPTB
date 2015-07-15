@@ -2,10 +2,14 @@
 //Add variable and function support
 //Add multiprecision support
 
+#include <boost/multiprecision/cpp_dec_float.hpp>
+#include <boost/lexical_cast.hpp>
 #include <iostream>
 #include <stack>
 #include <map>
 #include "ALexer.h"
+
+typedef boost::multiprecision::cpp_dec_float_100 dec_float_100;
 
 struct Operator
 {
@@ -29,6 +33,10 @@ std::vector<AToken> Inline2RPN(std::vector<AToken> tokens)
 		{
 		case TOKEN_NUMBER:
 			std::cout << "Pushed number " << token.getStr() << " onto output.\n";
+			output.push_back(token);
+			break;
+		case TOKEN_CONSTANT:
+			std::cout << "Pushed constant " << token.getStr() << " onto output.\n";
 			output.push_back(token);
 			break;
 		case TOKEN_FUNCTION:
@@ -112,11 +120,12 @@ std::vector<AToken> Inline2RPN(std::vector<AToken> tokens)
 	{
 		std::cout << output[i].getStr() << " ";
 	}
+	std::cout << "\n";
 
 	return output;
 }
-/*
-float RPNEvaulate(std::vector<AToken> input)
+
+dec_float_100 RPNEvaulate(std::vector<AToken> input)
 {
 	std::stack<AToken> evstack;		//evaluation stack
 	for (int i = 0; i < (int)input.size(); i++)
@@ -129,7 +138,7 @@ float RPNEvaulate(std::vector<AToken> input)
 			break;
 		case TOKEN_OPERATOR:
 			int numargs = operators[token.getStr()].numargs;
-			if (evstack.size() < numargs)
+			if ((int)evstack.size() < numargs)
 			{
 				std::cout << "Insufficient values in the expression.\n";
 				break;
@@ -143,7 +152,7 @@ float RPNEvaulate(std::vector<AToken> input)
 	}
 	return 0;
 }
-*/
+
 AToken rpop(std::stack<AToken> stack)
 {
 	AToken top = stack.top();
@@ -153,7 +162,7 @@ AToken rpop(std::stack<AToken> stack)
 
 void printTokenVector(std::vector<AToken> tokVec)
 {
-	std::string tokenTypeStrings[11] =
+	std::string tokenTypeStrings[12] =
 	{
 		"TOKEN_NULL",
 		"TOKEN_UNKNOWN",
@@ -161,6 +170,7 @@ void printTokenVector(std::vector<AToken> tokVec)
 		"TOKEN_NUMBER",
 		"TOKEN_LETTER",
 		"TOKEN_VARIABLE",
+		"TOKEN_CONSTANT",
 		"TOKEN_FUNCTION",
 		"TOKEN_SYMBOL",
 		"TOKEN_OPERATOR",
@@ -191,11 +201,14 @@ int main()
 	lexer.add("+-*/^", TOKEN_OPERATOR);
 	lexer.addSingle("(", TOKEN_LEFT_PAREN);
 	lexer.addSingle(")", TOKEN_RIGHT_PAREN);
+	lexer.addSingle("[", TOKEN_LEFT_PAREN);
+	lexer.addSingle("]", TOKEN_RIGHT_PAREN);
 	lexer.addSingle(" ", TOKEN_SPACE);
 	lexer.addSingle("sin", TOKEN_FUNCTION);
 	lexer.addSingle("cos", TOKEN_FUNCTION);
 	lexer.addSingle("tan", TOKEN_FUNCTION);
 	lexer.addSingle("testfunc2", TOKEN_FUNCTION);
+	lexer.addSingle("e", TOKEN_CONSTANT);
 
 	//Set up operators so Shunting Yard can deal with them
 	operators["^"] = { 4, 1, 2 };

@@ -8,58 +8,6 @@ ALexer::~ALexer()
 {
 }
 
-/*deprecated 06.30.15
-std::vector<AToken> ALexer::tokenize(std::string input)
-{
-	std::vector<AToken> tokens;
-
-	int start = 0;
-	int end = 0;
-
-	std::string lastChar;
-	int lastType;
-	std::string curChar;
-	int curType;
-	std::string curString;
-
-	for (int i = 0; i <= (int)input.size(); i++)
-	{
-		//first run
-		if (i == 0)
-		{
-			lastChar = input.substr(i, 1);
-			lastType = getTypeFromString(lastChar);
-		}
-		else
-		{
-			lastChar = curChar;
-			lastType = curType;
-		}
-
-		curChar = input.substr(i, 1);
-		curType = getTypeFromString(curChar);
-
-		//If the types change, or if the current type is a parenthesis, store what we have as a token.
-		if ((curType != lastType) || (curType == TOKEN_LEFT_PAREN) || (curType == TOKEN_RIGHT_PAREN))
-		{
-			end = i;
-			tokens.push_back(AToken(input.substr(start, end-start), lastType));
-			start = i;
-		}
-		else
-		{
-			//keep going, but if we have reached the end of the string, store what we have as a token.
-			end = i;
-			if (i == (int)input.size())
-			{
-				tokens.push_back(AToken(input.substr(start, end - start), lastType));
-			}
-		}
-	}
-	return tokens;
-}
-*/
-
 std::vector<AToken> ALexer::tokenize(std::string input)
 {
 	std::vector<AToken> tokens;
@@ -75,7 +23,18 @@ std::vector<AToken> ALexer::tokenize(std::string input)
 		{
 			curToken.setType(curType);
 			
-			//See if the next token will be a function
+			//See if the next token will be a constant or function
+			std::vector<std::string> constVec = stringmap[TOKEN_CONSTANT];
+			for (int i = 0; i < (int)constVec.size(); i++)
+			{
+				if (input.find(constVec[i]) == 0)
+				{
+					curToken.setType(TOKEN_CONSTANT);
+					curToken.setStr(input.substr(0, constVec[i].size()));
+					input.erase(0, constVec[i].size());
+				}
+			}
+
 			std::vector<std::string> funcVec = stringmap[TOKEN_FUNCTION];
 			for (int i = 0; i < (int)funcVec.size(); i++)
 			{
@@ -94,7 +53,7 @@ std::vector<AToken> ALexer::tokenize(std::string input)
 			curToken.setStr(curToken.getStr() + curChar);
 			input.erase(0, 1);
 		}
-		else if (curType == TOKEN_LETTER && curToken.getType() != TOKEN_FUNCTION && (curToken.getType() == TOKEN_LETTER || curToken.getType() == TOKEN_VARIABLE))
+		else if (curType == TOKEN_LETTER && curToken.getType() != TOKEN_FUNCTION && curToken.getType() != TOKEN_CONSTANT && (curToken.getType() == TOKEN_LETTER || curToken.getType() == TOKEN_VARIABLE)) //I am so sorry for this monstrous condition.
 		{
 			if (curToken.getType() == TOKEN_LETTER)
 			{
