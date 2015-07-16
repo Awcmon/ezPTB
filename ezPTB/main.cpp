@@ -207,7 +207,6 @@ int main()
 	lexer.addSingle("sin", TOKEN_FUNCTION);
 	lexer.addSingle("cos", TOKEN_FUNCTION);
 	lexer.addSingle("tan", TOKEN_FUNCTION);
-	lexer.addSingle("testfunc2", TOKEN_FUNCTION);
 	lexer.addSingle("e", TOKEN_CONSTANT);
 
 	//Set up operators so Shunting Yard can deal with them
@@ -225,6 +224,8 @@ int main()
 	std::cin >> input;
 
 	printTokenVector(lexer.tokenize(input));
+
+	//std::cout << lexer.findTypeEndPos(input, { TOKEN_LETTER, TOKEN_NUMBER });
 
 	//Tokenize input
 	//std::vector<AToken> rpn = Inline2RPN(lexer.tokenize(input));

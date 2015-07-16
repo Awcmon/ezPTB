@@ -14,7 +14,12 @@ public:
 	~ALexer();
 
 	std::vector<AToken> tokenize(std::string input);
+
 	int getTypeFromString(std::string val);
+	int findTypeEndPos(std::string input, std::vector<int> typeWhitelist);
+	std::string getSubstrOfType(std::string input, std::vector<int> typeWhitelist);
+	//void vectorPushToken(std::vector<AToken> &vec, AToken &token);
+
 	void add(std::string val, int type);
 	void addSingle(std::string val, int type);
 
