@@ -2,14 +2,14 @@
 //Add variable and function support
 //Add multiprecision support
 
-#include <boost/multiprecision/cpp_dec_float.hpp>
-#include <boost/lexical_cast.hpp>
 #include <iostream>
 #include <stack>
 #include <map>
+#include <algorithm>
 #include "ALexer.h"
-
-typedef boost::multiprecision::cpp_dec_float_100 dec_float_100;
+#include "Globals.h"
+#include "Function.h"
+#include "FunctionsLib.h"
 
 struct Operator
 {
@@ -19,6 +19,7 @@ struct Operator
 };
 
 std::map<std::string, Operator> operators;
+std::map<std::string, Function> functions;
 
 std::vector<AToken> Inline2RPN(std::vector<AToken> tokens)
 {
@@ -43,6 +44,27 @@ std::vector<AToken> Inline2RPN(std::vector<AToken> tokens)
 			opstack.push(token);
 			break;
 			//case function seperator needed here
+		case TOKEN_COMMA:
+			if (!opstack.empty())
+			{
+				while (opstack.top().getType() != TOKEN_LEFT_PAREN)
+				{
+					if (opstack.empty())
+					{
+						std::cout << "Separator misplaced or parentheses mismatched.\n";
+						break;
+					}
+					output.push_back(opstack.top());
+					opstack.pop();
+				}
+				std::cout << "Left parenthesis found.\n";
+			}
+			else
+			{
+				std::cout << "Separator misplaced or parentheses mismatched.\n";
+				break;
+			}
+			break;
 		case TOKEN_OPERATOR:
 			/*	while there is an operator token, o2, at the top of the operator stack, and either
 			o1 is left - associative and its precedence is less than or equal to that of o2, or
@@ -125,16 +147,16 @@ std::vector<AToken> Inline2RPN(std::vector<AToken> tokens)
 	return output;
 }
 
-dec_float_100 RPNEvaulate(std::vector<AToken> input)
+mpnum RPNEvaulate(std::vector<AToken> input)
 {
-	std::stack<AToken> evstack;		//evaluation stack
+	std::stack<mpnum> evstack;		//evaluation stack
 	for (int i = 0; i < (int)input.size(); i++)
 	{
 		AToken token = input[i];
 		switch (token.getType())
 		{
 		case TOKEN_NUMBER:
-			evstack.push(token);
+			evstack.push(boost::lexical_cast<mpnum>(token.getStr()));
 			break;
 		case TOKEN_OPERATOR:
 			int numargs = operators[token.getStr()].numargs;
@@ -145,10 +167,25 @@ dec_float_100 RPNEvaulate(std::vector<AToken> input)
 			}
 			else
 			{
-				std::vector<float> args;
+				std::vector<mpnum> args;
+				for (int k = 0; k < numargs; k++)
+				{
+					args.push_back(evstack.top());
+					evstack.pop();
+				}
+				std::reverse(args.begin(), args.end());
+				evstack.push(functions[token.getStr()].func(args));
 			}
 			break;
 		}
+	}
+	if (evstack.size() == 1)
+	{
+		return evstack.top();
+	}
+	else
+	{
+		std::cout << "The user input has too many values.";
 	}
 	return 0;
 }
@@ -162,7 +199,7 @@ AToken rpop(std::stack<AToken> stack)
 
 void printTokenVector(std::vector<AToken> tokVec)
 {
-	std::string tokenTypeStrings[12] =
+	std::string tokenTypeStrings[13] =
 	{
 		"TOKEN_NULL",
 		"TOKEN_UNKNOWN",
@@ -174,6 +211,7 @@ void printTokenVector(std::vector<AToken> tokVec)
 		"TOKEN_FUNCTION",
 		"TOKEN_SYMBOL",
 		"TOKEN_OPERATOR",
+		"TOKEN_COMMA",
 		"TOKEN_LEFT_PAREN",
 		"TOKEN_RIGHT_PAREN"
 	};
@@ -204,9 +242,11 @@ int main()
 	lexer.addSingle("[", TOKEN_LEFT_PAREN);
 	lexer.addSingle("]", TOKEN_RIGHT_PAREN);
 	lexer.addSingle(" ", TOKEN_SPACE);
+	lexer.addSingle(",", TOKEN_COMMA);
 	lexer.addSingle("sin", TOKEN_FUNCTION);
 	lexer.addSingle("cos", TOKEN_FUNCTION);
 	lexer.addSingle("tan", TOKEN_FUNCTION);
+	lexer.addSingle("fnInt", TOKEN_FUNCTION);
 	lexer.addSingle("e", TOKEN_CONSTANT);
 
 	//Set up operators so Shunting Yard can deal with them
@@ -216,6 +256,17 @@ int main()
 	operators["+"] = { 2, 0, 2 };
 	operators["-"] = { 2, 0, 2 };
 
+	functions["^"].setPAN(4, 1, 2);
+	functions["^"].func = pow;
+	functions["*"].setPAN(3, 0, 2);
+	functions["*"].func = multiply;
+	functions["/"].setPAN(3, 0, 2);
+	functions["/"].func = divide;
+	functions["+"].setPAN(2, 0, 2);
+	functions["+"].func = add;
+	functions["-"].setPAN(2, 0, 2);
+	functions["-"].func = subtract;
+
 	//printStrVector(lexer.stringmap[TOKEN_LETTER]);
 
 	//Handle input
@@ -223,14 +274,13 @@ int main()
 	std::cout << "Input: ";
 	std::cin >> input;
 
-	printTokenVector(lexer.tokenize(input));
-
+	//printTokenVector(Inline2RPN(lexer.tokenize(input)));
 	//std::cout << lexer.findTypeEndPos(input, { TOKEN_LETTER, TOKEN_NUMBER });
 
 	//Tokenize input
-	//std::vector<AToken> rpn = Inline2RPN(lexer.tokenize(input));
-
-	//std::cout << RPNEvaulate(rpn);
+	std::vector<AToken> rpn = Inline2RPN(lexer.tokenize(input));
+	printTokenVector(rpn);
+	std::cout << "Result: " << RPNEvaulate(rpn);
 
 	return 0;
 }

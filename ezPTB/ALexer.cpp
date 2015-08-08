@@ -7,91 +7,6 @@ ALexer::ALexer()
 ALexer::~ALexer()
 {
 }
-/*
-std::vector<AToken> ALexer::tokenize(std::string input)
-{
-	std::vector<AToken> tokens;
-
-	AToken curToken;
-
-	while (input.size() > 0)
-	{
-		std::string curChar = input.substr(0, 1);
-		int curType = getTypeFromString(curChar);
-
-		if (curToken.getType() == TOKEN_NULL)
-		{
-			curToken.setType(curType);
-			
-			//See if the next token will be a constant or function if it starts with a letter
-			if (curToken.getType() == TOKEN_LETTER)
-			{
-				std::vector<std::string> constVec = stringmap[TOKEN_CONSTANT];
-				for (int i = 0; i < (int)constVec.size(); i++)
-				{
-					if (input.find(constVec[i]) == 0)
-					{
-						curToken.setType(TOKEN_CONSTANT);
-						curToken.setStr(input.substr(0, constVec[i].size()));
-						input.erase(0, constVec[i].size());
-					}
-				}
-			}
-
-			if (curToken.getType() == TOKEN_LETTER)
-			{
-				std::vector<std::string> funcVec = stringmap[TOKEN_FUNCTION];
-				for (int i = 0; i < (int)funcVec.size(); i++)
-				{
-					if (input.find(funcVec[i]) == 0)
-					{
-						curToken.setType(TOKEN_FUNCTION);
-						curToken.setStr(input.substr(0, funcVec[i].size()));
-						input.erase(0, funcVec[i].size());
-					}
-				}
-			}
-			
-		}
-
-		if (curType == TOKEN_NUMBER && curToken.getType() == TOKEN_NUMBER)
-		{
-			curToken.setStr(curToken.getStr() + curChar);
-			input.erase(0, 1);
-		}
-		else if (curType == TOKEN_LETTER && curToken.getType() != TOKEN_FUNCTION && curToken.getType() != TOKEN_CONSTANT && (curToken.getType() == TOKEN_LETTER || curToken.getType() == TOKEN_VARIABLE)) //I am so sorry for this monstrous condition.
-		{
-			if (curToken.getType() == TOKEN_LETTER)
-			{
-				curToken.setType(TOKEN_VARIABLE);
-			}
-			curToken.setStr(curToken.getStr() + curChar);
-			input.erase(0, 1);
-		}
-		else if (curType != curToken.getType())
-		{
-			tokens.push_back(curToken);
-			curToken.reset();
-		}
-		else
-		{
-			curToken.setStr(curChar);
-			input.erase(0, 1);
-			tokens.push_back(curToken);
-			curToken.reset();
-		}
-	}
-
-	//If there is still a token, then put it in the vector
-	if (curToken.getType() != TOKEN_NULL)
-	{
-		tokens.push_back(curToken);
-		curToken.reset();
-	}
-
-	return tokens;
-}
-*/
 
 std::vector<AToken> ALexer::tokenize(std::string input)
 {
@@ -118,7 +33,7 @@ std::vector<AToken> ALexer::tokenize(std::string input)
 		//If the curToken is a letter, try to find whether or not it is a constant, function, or a user-definable variable in that priority. Letters and numbers are included. Delimiters are everything else.
 		else if (curToken.getType() == TOKEN_LETTER)
 		{
-			std::string sub = getSubstrOfType(input, { TOKEN_LETTER, TOKEN_NUMBER });
+			std::string sub = getSubstrOfType(input, { TOKEN_LETTER, TOKEN_NUMBER } );
 			curToken.setStr(sub);
 
 			if (curToken.getType() == TOKEN_LETTER)

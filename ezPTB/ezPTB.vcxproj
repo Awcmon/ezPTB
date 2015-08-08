@@ -80,12 +80,15 @@
     <ClCompile Include="ALexer.cpp" />
     <ClCompile Include="AToken.cpp" />
     <ClCompile Include="Function.cpp" />
+    <ClCompile Include="FunctionsLib.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ALexer.h" />
     <ClInclude Include="AToken.h" />
     <ClInclude Include="Function.h" />
+    <ClInclude Include="FunctionsLib.h" />
+    <ClInclude Include="Globals.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
